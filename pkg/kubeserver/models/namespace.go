@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 	"database/sql"
+	"strings"
 
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -94,6 +95,7 @@ func (m *SNamespaceManager) NewRemoteObjectForCreate(obj IClusterModel, _ *clien
 
 func (m *SNamespaceManager) EnsureNamespace(ctx context.Context, userCred mcclient.TokenCredential, ownerCred mcclient.IIdentityProvider, cluster *SCluster, data *api.NamespaceCreateInputV2) (*SNamespace, error) {
 	data.ClusterId = cluster.GetId()
+	data.Name = convertToNamespaceName(data.Name)
 	nsObj, err := m.GetByIdOrName(userCred, cluster.GetId(), data.Name)
 	if err != nil {
 		if errors.Cause(err) == sql.ErrNoRows {
@@ -201,4 +203,8 @@ func (ns *SNamespace) Delete(ctx context.Context, userCred mcclient.TokenCredent
 		}
 	}
 	return nil
+}
+
+func convertToNamespaceName(name string) string {
+	return strings.ToLower(name)
 }

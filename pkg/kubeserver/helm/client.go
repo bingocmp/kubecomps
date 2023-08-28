@@ -288,7 +288,10 @@ func (r releaseClient) Update(input *api.ReleaseUpdateInput) (*release.Release, 
 	}
 
 	cli := r.Upgrade()
+	cli.Force = input.Force
+	cli.ResetValues = input.ResetValues
 	cli.Version = input.Version
+	cli.Recreate = input.RecreatePods
 	cli.Namespace = input.Namespace
 	return cli.Run(input.ReleaseName, cp, vals)
 }
