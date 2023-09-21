@@ -349,6 +349,8 @@ func (r *SRelease) doCreate() (*release.Release, error) {
 	// install.Atomic = true
 	install.Replace = true
 	vals := r.GetHelmValues()
+	vals["releaseId"] = r.Id
+	chart.Values["releaseId"] = r.Id
 	rls, err := install.Run(chart, vals)
 	if err != nil {
 		return nil, errors.Wrap(err, "install release")

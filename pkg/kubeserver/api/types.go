@@ -39,6 +39,7 @@ const (
 	KindNameVirtualMachine          KindName = "VirtualMachine"
 	KindNameAnsiblePlaybook         KindName = "AnsiblePlaybook"
 	KindNameAnsiblePlaybookTemplate KindName = "AnsiblePlaybookTemplate"
+	KindNameGeneralService          KindName = "GeneralService"
 )
 
 const (
@@ -74,6 +75,7 @@ const (
 	ResourceNameVirtualMachine          string = "virtualmachines"
 	ResourceNameAnsiblePlaybook         string = "ansibleplaybooks"
 	ResourceNameAnsiblePlaybookTemplate string = "ansibleplaybooktemplates"
+	ResourceNameGeneralService          string = "generalservices"
 )
 
 // ObjectMeta is metadata about an instance of a resource.

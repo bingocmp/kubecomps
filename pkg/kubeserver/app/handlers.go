@@ -107,6 +107,7 @@ func InitHandlers(app *appsrv.Application) {
 		models.GetVirtualMachineManager(),
 		models.GetAnsiblePlaybookManager(),
 		models.GetAnsiblePlaybookTemplateManager(),
+		models.GetGeneralServiceManager(),
 	} {
 		handler := model.NewK8SModelHandler(man)
 		log.Infof("Dispatcher register k8s resource manager %q", man.KeywordPlural())
