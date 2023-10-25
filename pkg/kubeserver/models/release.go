@@ -7,12 +7,15 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/release"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/helm/pkg/strvals"
 	"sigs.k8s.io/yaml"
+	"yunion.io/x/onecloud/pkg/mcclient/auth"
+	"yunion.io/x/onecloud/pkg/mcclient/modules/identity"
 
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/log"
@@ -318,6 +321,9 @@ func (r *SRelease) CustomizeCreate(ctx context.Context, userCred mcclient.TokenC
 	r.RepoId = input.Repo
 	r.Chart = input.Chart
 	r.ChartVersion = input.Version
+
+	r.Name = fmt.Sprintf("%s-%.8s", r.Name, uuid.New().String())
+
 	drv, err := r.GetDriver()
 	if err != nil {
 		return errors.Wrap(err, "customize create get driver")
@@ -349,8 +355,18 @@ func (r *SRelease) doCreate() (*release.Release, error) {
 	// install.Atomic = true
 	install.Replace = true
 	vals := r.GetHelmValues()
+
+	// 所有的编排包内置的参数。
 	vals["releaseId"] = r.Id
-	chart.Values["releaseId"] = r.Id
+	resp, err := identity.ServicesV3.GetSpecific(auth.GetAdminSession(context.Background(), ""), "common", "config", nil)
+	if err != nil {
+		return nil, err
+	}
+	apiServer, _ := resp.GetString("config", "default", "api_server")
+	if len(apiServer) > 0 {
+		vals["apiServer"] = apiServer
+	}
+
 	rls, err := install.Run(chart, vals)
 	if err != nil {
 		return nil, errors.Wrap(err, "install release")
