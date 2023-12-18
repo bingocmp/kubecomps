@@ -716,6 +716,16 @@ func (obj *SRelease) PerformRollback(ctx context.Context, userCred mcclient.Toke
 	if err := rbk.Run(obj.GetName()); err != nil {
 		return nil, errors.Wrap(err, "Run rollback")
 	}
+
+	db.Update(obj, func() error {
+		target, err := cli.Release().ReleaseContent(obj.GetName(), input.Revision)
+		if err != nil {
+			return errors.Wrap(err, "Get release content")
+		}
+		obj.Config = jsonutils.Marshal(target.Config)
+		return nil
+	})
+
 	return nil, nil
 }
 
@@ -738,5 +748,11 @@ func (obj *SRelease) PerformUpgrade(ctx context.Context, userCred mcclient.Token
 	if err != nil {
 		return nil, errors.Wrap(err, "update release")
 	}
+
+	db.Update(obj, func() error {
+		obj.Config = input.ValuesJson
+		return nil
+	})
+
 	return jsonutils.Marshal(rls), nil
 }
